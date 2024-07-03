@@ -193,6 +193,7 @@ class Review(db.Model, Base):
 
 
 class DBRepository(Repository):
+    """Database Repository class to handle database interactions"""
 
     def __init__(self) -> None:
         self.db = db
