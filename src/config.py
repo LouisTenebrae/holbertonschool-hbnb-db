@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+"""
+This script is used to set up the environment variables and
+load the configuration.
+"""
+
+# Import necessary modules and load environment variables from .env file
+import os
+from abc import ABC
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
+
 """
 This module exports configuration classes for the Flask application.
 
@@ -6,9 +19,6 @@ This module exports configuration classes for the Flask application.
 - ProductionConfig
 
 """
-
-from abc import ABC
-import os
 
 
 class Config(ABC):
@@ -19,7 +29,6 @@ class Config(ABC):
 
     DEBUG = False
     TESTING = False
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
@@ -48,7 +57,7 @@ class TestingConfig(Config):
     """
     Testing configuration settings
     This configuration is used when running tests.
-    You can enabled/disable things across the application
+    You can enable/disable things across the application
 
     To check if the application is running in testing mode, you can use:
     ```
@@ -75,7 +84,6 @@ class ProductionConfig(Config):
 
     TESTING = False
     DEBUG = False
-
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
         "postgresql://user:password@localhost/hbnb_prod"
