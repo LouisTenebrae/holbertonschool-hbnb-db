@@ -1,16 +1,14 @@
 #!/usr/bin/python3
-
 """ Initialize the Flask app. """
 
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, \
-    jwt_required, get_jwt_identity
+    jwt_required, get_jwt
 from flask_bcrypt import Bcrypt
 import os
 from flask_cors import CORS
 from dotenv import load_dotenv
-from src.models.user import User
 
 # Load environment variables
 load_dotenv()
@@ -72,16 +70,16 @@ def register_handlers(app: Flask) -> None:
     """Register the error handlers for the Flask app."""
     app.errorhandler(404)(lambda e: (
         {"error": "Not found", "message": str(e)}, 404
-    )
-    )
+    ))
     app.errorhandler(400)(
         lambda e: (
             {"error": "Bad request", "message": str(e)}, 400
         )
     )
 
-
 # Create and configure the app
+
+
 app = create_app()
 
 
@@ -99,23 +97,49 @@ class User(db.Model):
         return bcrypt.check_password_hash(self.password_hash, password)
 
 
-# Example route
 @app.route('/')
 def index():
-    return 'Hello, World!'
+    return
 
 
-# Login route
 @app.route('/login', methods=['POST'])
 def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
-        access_token = create_access_token(identity=username)
+        additional_claims = {"is_admin": user.is_admin}
+        access_token = create_access_token(identity=user.id,
+                                           additional_claims=additional_claims)
         return jsonify(access_token=access_token), 200
-    return 'Wrong username or password', 401
+    return jsonify({"msg": "Wrong username or password"}), 401
+
+
+@app.route('/admin/data', methods=['POST', 'DELETE'])
+@jwt_required()
+def admin_data():
+    claims = get_jwt()
+    if not claims.get('is_admin'):
+        return jsonify({"msg": "Administration rights required"}), 403
+    # Proceed with admin-only functionality
+    return jsonify({"msg": "Admin data accessed"}), 200
+
+
+@app.route('/admin/users/<user_id>', methods=['PUT'])
+@jwt_required()
+def promote_user(user_id):
+    claims = get_jwt()
+    if not claims.get('is_admin'):
+        return jsonify({"msg": "Administration rights required"}), 403
+
+    user = User.query.get(user_id)
+    if user:
+        user.is_admin = True
+        db.session.commit()
+        return jsonify({"msg": "User promoted to admin"}), 200
+    else:
+        return jsonify({"msg": "User not found"}), 404
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

@@ -1,7 +1,7 @@
-flask
-flask-cors
-flask-sqlalchemy
+Flask==3.0.3
+Flask-cors
 Flask-JWT-Extended
-Flask-bcrypt
-sqlalchemy
-gunicorn
+Flask_sqlalchemy
+Flask_bcrypt
+Gunicorn==20.1.0
+SQLAlchemy==2.0.0

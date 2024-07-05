@@ -1,0 +1,12 @@
+CREATE TABLE Place (
+    id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) REFERENCES User(id),
+    name VARCHAR(128) NOT NULL,
+    description TEXT,
+    number_rooms INTEGER DEFAULT 0,
+    number_bathrooms INTEGER DEFAULT 0,
+    max_guest INTEGER DEFAULT 0,
+    price_by_night INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
